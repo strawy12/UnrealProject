@@ -2,21 +2,40 @@
 
 
 #include "MyCharacter.h"
+#include <GameFramework/SpringArmComponent.h>
+#include <Camera/CameraComponent.h>
+#include "C:/Program Files/Epic Games/UE_5.2/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
+#include "C:/Program Files/Epic Games/UE_5.2/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
-AMyCharacter::AMyCharacter()
+AMyCharacter::AMyCharacter() 
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	springArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
+	if (springArmComp)
+	{
+		springArmComp->SetupAttachment(RootComponent);
+		springArmComp->SetRelativeLocation(FVector(0, 70, 90));
+		springArmComp->TargetArmLength = 400;
+	}
+
+	// 카메라 컴포넌트
+	myCamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("MyCamComp"));
+	if (myCamComp)
+	{
+		myCamComp->SetupAttachment(springArmComp);
+	}
+
 }
+
 
 // Called when the game starts or when spawned
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-    UE_LOG(LogTemp, Log, TEXT("Sss2SSdasddaS"));
-	
 }
 
 // Called every frame
@@ -31,7 +50,20 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-}
+	APlayerController* PlayerController = Cast<APlayerController>(Controller);
+
+	if (PlayerController) 
+	{
+		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		if (Subsystem)
+		{
+			Subsystem->AddMappingContext(myMappingContext, 0);
+		}
+	}
+
+	UEnhancedInputComponent* EnhancedInputComp = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+	EnhancedInputComp->BindAction(moveRightAction, ETriggerEvent::Triggered, this, &AMyCharacter::MoveRight);
+} 
 
 void AMyCharacter::MoveForward()
 {
@@ -43,6 +75,21 @@ void AMyCharacter::MoveForward()
 
 }
 
+
+void AMyCharacter::MoveRight(const FInputActionValue& Value)
+{
+	float Movement = Value.Get<float>();
+	if (Controller != nullptr)
+	{
+		FVector MoveDirection = GetActorRightVector();
+		FVector MoveVelocity = MoveDirection * Movement * rightSpeed;
+		FVector NewLocation = GetActorLocation() + MoveVelocity;
+		SetActorLocation(NewLocation);
+
+		UE_LOG(LogTemp, Log, TEXT("%f"), Movement);
+	}
+}
+
 void AMyCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
     Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
@@ -52,6 +99,10 @@ void AMyCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimit
 
     // 로그를 출력합니다.
     UE_LOG(LogTemp, Log, TEXT("SSSdasddaS"));
+
+	FVector Direction = GetActorLocation() * -1.f * FVector::UpVector;
+	Direction.Normalize();
+	GetCharacterMovement()->AddImpulse(Direction * 100.f);
 }
 
 

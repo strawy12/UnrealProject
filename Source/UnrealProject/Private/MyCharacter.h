@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "MyCharacter.generated.h"
+#include "C:/Program Files/Epic Games/UE_5.2/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
+#include "MyCharacter.generated.h" 
 
 UCLASS()
 class AMyCharacter : public ACharacter
@@ -16,6 +17,9 @@ public:
 	AMyCharacter();
 
 protected:
+	void MoveRight(const FInputActionValue& Value);
+
+protected: 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 public:	
@@ -30,6 +34,23 @@ public:
 	void MoveForward();
 
 	UPROPERTY(EditAnywhere, Category = "Move")
-		float moveSpeed = 10.f;
+		float moveSpeed = 100.f;
+
+	UPROPERTY(EditAnywhere, Category = "Move")
+		float rightSpeed = 300.f;
+
+
+protected:
+	UPROPERTY(VisibleAnywhere, Category = Camera)
+		class USpringArmComponent* springArmComp;
+
+	UPROPERTY(VisibleAnywhere, Category = Camera)
+		class UCameraComponent* myCamComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* moveRightAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputMappingContext* myMappingContext;
 
 };
