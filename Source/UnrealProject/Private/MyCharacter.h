@@ -18,6 +18,7 @@ public:
 
 protected:
 	void MoveRight(const FInputActionValue& Value);
+	void Turn(const FInputActionValue& Value);
 
 protected: 
 	// Called when the game starts or when spawned
@@ -38,7 +39,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Move")
 		float rightSpeed = 300.f;
-
+	
+	int posX = 0;
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
@@ -49,6 +51,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* moveRightAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* turnAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputMappingContext* myMappingContext;
